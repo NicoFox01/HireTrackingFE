@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { login as apiLogin } from '../services/api'
+import { login as apiLogin, getCurrentUser } from '../services/api'
 
 export default function Login() {
   const [username, setUsername] = useState('')
@@ -9,7 +9,7 @@ export default function Login() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const { login, setUserData } = useAuth()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -19,6 +19,10 @@ export default function Login() {
     try {
       const data = await apiLogin(username, password)
       login(data.access_token)
+      
+      const userData = await getCurrentUser(data.access_token)
+      setUserData(userData)
+      
       navigate('/')
     } catch (err) {
       setError(err.message)
